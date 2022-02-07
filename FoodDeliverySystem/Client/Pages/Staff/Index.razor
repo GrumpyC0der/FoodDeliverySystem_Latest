@@ -1,0 +1,102 @@
+﻿@page "/staff"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+<h1 class="border-Top-Bottom text-danger">Staff </h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <a href='/staff/add' class="btn btn-primary" role="button">
+            <i class="oi oi-plus"></i>
+            Add staff
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search staff by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="Filterstaff" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (staffList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+   <table class="table table-striped align-middle table-bordered table-sm">
+       <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Position</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staff in staffList)
+            {
+            <tr>
+                <td>@staff.StaffId</td>
+                <td>@staff.StaffName</td>
+                <td>@staff.StaffContact</td>
+                <td>@staff.StaffPostion</td>
+                <td>
+                    <a href='/staff/edit/@staff.StaffId' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                        Edit
+                    </a>
+                    <a href='/staff/delete/@staff.StaffId' class="icofont icofont-trash custom-text-primary" role="button">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            }
+        </tbody>
+
+    </table>
+}
+@code {
+    protected List<Staff> staffList = new();
+    protected List<Staff> searchstaffData = new();
+    protected Staff staff = new();
+    protected string SearchString { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await Getstaff();
+    }
+    protected async Task Getstaff()
+    {
+        staffList = await Http.GetFromJsonAsync<List<Staff>>("api/staff");
+        searchstaffData = staffList;
+    }
+    protected void Filterstaff()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            staffList = searchstaffData
+                .Where(x => x.StaffName.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            staffList = searchstaffData;
+        }
+    }
+    protected void DeleteConfirm(int staffID)
+    {
+        staff = staffList.FirstOrDefault(x => x.StaffId == staffID);
+    }
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        staffList = searchstaffData;
+    }
+}

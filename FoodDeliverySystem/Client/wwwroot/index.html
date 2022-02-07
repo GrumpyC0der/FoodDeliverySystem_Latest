@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>FoodDeliverySystem</title>
+    <base href="/" />
+    <style>
+        ::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #11075c;
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #DEE2EE;
+            border-radius: 0;
+        }
+
+        #custom-edittable-section ::-webkit-scrollbar {
+            width: 5px;
+            height: 8px;
+        }
+
+        .custom-edittable-section::-webkit-scrollbar-thumb {
+            background: #DEE2EE;
+            border-radius: 0;
+        }
+
+        .custom-edittable-section::-webkit-scrollbar-track {
+            background: #fff;
+            border-radius: 0;
+        }
+
+        .modal::-webkit-scrollbar-thumb {
+            background: #ffc107;
+            border-radius: 0;
+        }
+
+        .modal::-webkit-scrollbar-track {
+            background: #fff;
+            border-radius: 0;
+        }
+
+        .app-search span {
+            position: absolute;
+            z-index: 10;
+            font-size: 16px;
+            line-height: 38px;
+            left: 13px;
+            top: 0;
+            color: #74788d;
+            margin-top: 5%;
+        }
+
+        .md-form {
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        #sidebar-menu ul li {
+            border-bottom: 1px solid white
+        }
+
+            #sidebar-menu ul li a {
+                color: #fff;
+            }
+
+                #sidebar-menu ul li a:hover, {
+                    color: #fff;
+                    font-weight: bold;
+                }
+
+            #sidebar-menu ul li ul.sub-menu li a {
+                color: #fff;
+            }
+
+                #sidebar-menu ul li ul.sub-menu li a:hover {
+                    color: #fff;
+                    font-weight: bold;
+                }
+
+            #sidebar-menu ul li a i {
+                color: #fff;
+            }
+
+                #sidebar-menu ul li a i:hover {
+                    color: #fff;
+                    font-weight: bold
+                }
+
+        .vertical-menu {
+            background-color: #11075c;
+        }
+
+        .mm-active > a {
+            background: inherit;
+        }
+
+        #sidebar-menu ul li ul.sub-menu li a:active {
+            background: #cc8f17;
+        }
+
+        /* Edit Table */
+        #custom-edittable {
+            width: 100%;
+        }
+
+            #custom-edittable th {
+                font-size: 16px;
+                font-weight: bold
+            }
+
+            #custom-edittable, #custom-edittable th, #custom-edittable td {
+                border: solid 1px #DDD;
+                border-collapse: collapse;
+                padding: 2px 3px;
+                text-align: center;
+            }
+
+                #custom-edittable input {
+                    width: 100%;
+                    border: none;
+                }
+
+                    #custom-edittable input:focus-visible {
+                        width: 100%;
+                        border: none;
+                    }
+
+                    #custom-edittable input:focus {
+                        outline: none !important;
+                    }
+
+                #custom-edittable tbody {
+                    background-color: #fff;
+                }
+
+        .custom-edittable-section {
+            background-color: rgb(245, 238, 238);
+            width: 100%;
+            height: 300px;
+            overflow: scroll;
+        }
+
+        #custom-edittable thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+            #custom-edittable thead tr {
+                background-color: #11075c;
+                color: #fff;
+                padding: 15px;
+            }
+
+        #custom-edittable .select-wrapper input.select-dropdown {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #custom-edittable th .form-check-input[type="checkbox"]:checked + label:before, label.btn input[type="checkbox"]:checked + label:before {
+            border-right: 2px solid #fff !important;
+            border-bottom: 2px solid #fff !important;
+        }
+        /*Edit Table End */
+    </style>
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="FoodDeliverySystem.Client.styles.css" rel="stylesheet" />
+    <script src="jquery.min.js"></script>
+    <script>
+        function test() {
+            alert('ok');
+        var tablerow = '<tr><td><input type="text" EditInput="custom-edit" style="width:50px" name="sr_no" /></td><td><select  class="js-example-basic-single " onchange="itemchange(this)" EditInput="custom-edit" name="item_code"  style="width:350px; " ><option value="-1" disabled selected> </option>@foreach ($items as $i)<option value="{{$i->id}}">{{$i->name}}</option>@endforeach</select></td><td><input onchange="itemcaluclation(this)" type="text" EditInput="custom-edit" name="qty" /></td><td><input onchange="itemcaluclation(this)" type="text" EditInput="custom-edit" name="discount" /></td><td><input type="text" EditInput="custom-edit" name="pack_price" /></td><td><input type="text" EditInput="custom-edit" name="unit_price" /></td><td><input type="text" EditInput="custom-edit" name="discount_value" /></td><td><input type="text" EditInput="custom-edit" name="packing_size" /></td><td><input type="text" EditInput="custom-edit" name="u_total" /></td><td><a onclick="deleterow(this)" value="" class="icofont-trash" style="font-size:20px; "></a></td></tr>';
+            $("#addrow").click(function () {
+                $("#tbody").append(tablerow);
+                $('.js-example-basic-single').select2();
+            });
+        }
+        var tablerow = '<tr><td><input type="text" EditInput="custom-edit" style="width:50px" name="sr_no" /></td><td><select  class="js-example-basic-single " onchange="itemchange(this)" EditInput="custom-edit" name="item_code"  style="width:350px; " ><option value="-1" disabled selected> </option>@foreach ($items as $i)<option value="{{$i->id}}">{{$i->name}}</option>@endforeach</select></td><td><input onchange="itemcaluclation(this)" type="text" EditInput="custom-edit" name="qty" /></td><td><input onchange="itemcaluclation(this)" type="text" EditInput="custom-edit" name="discount" /></td><td><input type="text" EditInput="custom-edit" name="pack_price" /></td><td><input type="text" EditInput="custom-edit" name="unit_price" /></td><td><input type="text" EditInput="custom-edit" name="discount_value" /></td><td><input type="text" EditInput="custom-edit" name="packing_size" /></td><td><input type="text" EditInput="custom-edit" name="u_total" /></td><td><a onclick="deleterow(this)" value="" class="icofont-trash" style="font-size:20px; "></a></td></tr>';
+        $(document).ready(function () {
+            // $("#tbody").append(tablerow);
+            $("#addrow").click(function () {
+                $("#tbody").append(tablerow);
+                $('.js-example-basic-single').select2();
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div id="app">Loading...</div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

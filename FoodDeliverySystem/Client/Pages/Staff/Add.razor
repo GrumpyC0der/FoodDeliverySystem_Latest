@@ -1,0 +1,66 @@
+﻿@page "/staff/add"
+@page "/staff/edit/{staffId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>@Title Staff</h1>
+<hr />
+<EditForm Model="@staff" OnValidSubmit="SaveStaff">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">Name</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="staff.StaffName" />
+        </div>
+        <ValidationMessage For="@(() => staff.StaffName)" />
+    </div>
+    <div class="mb-3">
+        <label for="Address" class="form-label">Contact</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="staff.StaffContact" />
+        </div>
+        <ValidationMessage For="@(() => staff.StaffContact)" />
+    </div>
+    <div class="mb-3">
+        <label for="Cellnumber" class="form-label">Position</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="staff.StaffPostion" />
+        </div>
+        <ValidationMessage For="@(() => staff.StaffPostion)" />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public int staffId { get; set; }
+    protected string Title = "Add";
+    protected Staff staff = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        if (staffId != 0)
+        {
+            Title = "Edit";
+            staff = await Http.GetFromJsonAsync<Staff>("api/Staff/" + staffId);
+        }
+    }
+    protected async Task SaveStaff()
+    {
+        if (staff.StaffId != 0)
+        {
+            await Http.PutAsJsonAsync("api/Staff", staff);
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/Staff", staff);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/staff");
+    }
+}

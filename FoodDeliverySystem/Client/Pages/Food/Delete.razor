@@ -1,0 +1,24 @@
+﻿@page "/food/delete"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+
+<select class="form-control">
+    @foreach (var food in foodstoresList)
+    {
+        <option value="@food.FoodStoresID"> @food.StoreAddress </option>
+    }
+</select>
+
+@code {
+    protected List<FoodStores> foodstoresList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Getfoodstores();
+    }
+    protected async Task Getfoodstores()
+    {
+        foodstoresList = await Http.GetFromJsonAsync<List<FoodStores>>("api/foodstores");
+    }
+  
+   
+}

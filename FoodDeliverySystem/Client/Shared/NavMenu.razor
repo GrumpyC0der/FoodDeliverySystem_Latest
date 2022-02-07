@@ -1,0 +1,79 @@
+﻿<style>    .nav-link span {
+        font-size:20px;
+        padding-right:3px;
+    }
+    .border-Top-Bottom {
+        border-bottom: 3px dashed #11075c;
+        border-top: 3px dashed #11075c;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .btn-primary {
+        background: #11075c;
+        color: white;
+    }
+    custom-text-primary {
+        color: #11075c !important;
+    }
+    
+
+</style>
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">FoodDeliverySystem</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+<link rel="stylesheet" href="/icofont/icofont.min.css"/>
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="customer">
+                <span class="icofont icofont-users-alt-5"  aria-hidden="true"></span>  Customer
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="staff">
+                <span class="icofont icofont-users-alt-2" aria-hidden="true"></span> Staff
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="foodstores">
+                <span class="icofont icofont-food-cart" aria-hidden="true"></span> FoodStores
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="food">
+                <span class="icofont icofont-fast-food" aria-hidden="true"></span> Food
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="order">
+                <span class="icofont icofont-notepad" aria-hidden="true"></span> Order
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="payment">
+                <span class="icofont icofont-money" aria-hidden="true"></span> Payment
+            </NavLink>
+        </li>
+
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

@@ -1,0 +1,103 @@
+﻿@page "/payment"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+<h1 class="border-Top-Bottom text-danger">Payment</h1>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <a href='/payment/add' class="btn btn-primary" role="button">
+            <i class="oi oi-plus"></i>
+            Add payment
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search payment by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="Filterpayment" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (paymentList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped align-middle table-bpaymented">
+       <thead class="table-primary">
+            <tr>
+                <th>PaymentId</th>
+                <th>PaymentType</th>
+                <th>PaymentDate</th>
+                <th>OrderId</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in paymentList)
+            {
+                <tr>
+                    <td>@payment.PaymentId</td>
+                    <td>@payment.PaymentType</td>
+                    <td>@payment.PaymentDate</td>
+                    <td>@payment.OrderId</td>
+                    <td>
+                        <a href='/payment/edit/@payment.PaymentId' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                            Edit
+                        </a>
+                        <a href='/payment/delete/@payment.PaymentId' class="icofont icofont-trash custom-text-primary" role="button">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+}
+@code {
+    protected List<Payment> paymentList = new();
+    protected List<Payment> searchpaymentData = new();
+    protected Payment payment = new();
+    protected string SearchString { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await Getpayment();
+    }
+    protected async Task Getpayment()
+    {
+        paymentList = await Http.GetFromJsonAsync<List<Payment>>("api/payment");
+        searchpaymentData = paymentList;
+    }
+    protected void Filterpayment()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            paymentList = searchpaymentData
+                .Where(x => x.PaymentType.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            paymentList = searchpaymentData;
+        }
+    }
+    protected void DeleteConfirm(int paymentID)
+    {
+        payment = paymentList.FirstOrDefault(x => x.PaymentId == paymentID);
+    }
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        paymentList = searchpaymentData;
+    }
+}

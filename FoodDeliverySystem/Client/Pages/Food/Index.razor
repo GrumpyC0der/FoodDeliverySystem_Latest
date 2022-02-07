@@ -1,0 +1,103 @@
+﻿@page "/food"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+<h1 class="border-Top-Bottom text-danger">Food </h1>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <a href='/food/add' class="btn btn-primary" role="button">
+            <i class="oi oi-plus"></i>
+            Add food
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search food by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="Filterfood" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (foodList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped align-middle table-bfooded">
+       <thead class="table-primary">
+            <tr>
+                <th>Food Id</th>
+                <th>Food Price</th>
+                <th>Food Description</th>
+                <th>Store</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var food in foodList)
+            {
+                <tr>
+                    <td>@food.FoodID</td>
+                    <td>@food.FoodPrice</td>
+                    <td>@food.Description</td>
+                    <td>@food.FoodStores.StoreAddress</td>
+                    <td>
+                        <a href='/food/edit/@food.FoodID' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                            Edit
+                        </a>
+                        <a href='/food/delete/@food.FoodID' class="icofont icofont-trash custom-text-primary" role="button">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+}
+@code {
+    protected List<Food> foodList = new();
+    protected List<Food> searchfoodData = new();
+    protected Food food = new();
+    protected string SearchString { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await Getfood();
+    }
+    protected async Task Getfood()
+    {
+        foodList = await Http.GetFromJsonAsync<List<Food>>("api/food");
+        searchfoodData = foodList;
+    }
+    protected void Filterfood()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            foodList = searchfoodData
+                .Where(x => x.FoodStores.StoreArea.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            foodList = searchfoodData;
+        }
+    }
+    protected void DeleteConfirm(int foodID)
+    {
+        food = foodList.FirstOrDefault(x => x.FoodID == foodID);
+    }
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        foodList = searchfoodData;
+    }
+}

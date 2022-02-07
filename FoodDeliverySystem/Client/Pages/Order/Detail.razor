@@ -1,0 +1,156 @@
+﻿@page "/orderitem/add"
+@page "/order/detail/{orderId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1 class="border-Top-Bottom text-danger">Order #@order.OrderId</h1>
+<hr />
+<div class="form-group">
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Order Fee</td>
+                <td>@order.OrderFee</td>
+            </tr>
+
+
+        </tbody>
+    </table>
+</div>
+<a type="button" href="/orderitems/@order.OrderId"  id="addrow" class="btn btn-primary btn-sm icofont-plus float-right">Add Food Items</a> 
+
+<table class="table table-striped align-middle table-bordered table-sm">
+    <thead class="table-primary">
+        <tr>
+            <th>id</th>
+            <th>Food</th>
+            <th>Quantity</th>
+            @*<th>Action</th>*@
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in orderitemsList)
+        {
+            <tr>
+                <td>@order.OrderItemsId</td>
+                <td>@order.Food.Description</td>
+                <td>@order.OrderQuantity</td>
+                @*<td>
+                        <a href='/order/edit/@order.OrderId' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                            Edit
+                        </a>
+                        <a href='/order/detail/@order.OrderId' class="icofont icofont-trash custom-text-primary" role="button">
+                            Delete
+                        </a>
+                    </td>*@
+            </tr>
+        }
+    </tbody>
+
+</table>
+@code {
+
+    [Parameter]
+    public int orderId { get; set; }
+    protected string Title = "Add";
+    protected Order order = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        if (orderId != 0)
+        {
+            Title = "Edit";
+            order = await Http.GetFromJsonAsync<Order>("api/Order/" + orderId);
+        }
+    }
+    protected async Task SaveOrder()
+    {
+
+        if (order.OrderId != 0)
+        {
+            await Http.PutAsJsonAsync("api/Order", order);
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/Order", order);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/order");
+    }
+    protected List<Customer> customerList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Getcustomer();
+        await Getstaff();
+        await Getorderitems();
+    }
+    protected async Task Getcustomer()
+    {
+        customerList = await Http.GetFromJsonAsync<List<Customer>>("api/customer");
+    }
+    protected List<Staff> staffList = new();
+
+    protected async Task Getstaff()
+    {
+        staffList = await Http.GetFromJsonAsync<List<Staff>>("api/staff");
+    }
+
+    protected List<OrderItems> orderitemsList = new();
+
+
+    protected async Task Getorderitems()
+    {
+        orderitemsList = await Http.GetFromJsonAsync<List<OrderItems>>("api/orderitems/" + orderId);
+    }
+}
+
+
+
+
+
+
+@*<EditForm Model="@order" OnValidSubmit="SaveOrder">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Order Time</label>
+            <div class="col-md-4">
+                <InputText class="form-control" @bind-Value="order.OrderTime" />
+            </div>
+            <ValidationMessage For="@(() => order.OrderTime)" />
+        </div>
+        <div class="mb-3">
+            <label for="Address" class="form-label">Order Fee</label>
+            <div class="col-md-4">
+                <InputText class="form-control" @bind-Value="order.OrderFee" />
+            </div>
+            <ValidationMessage For="@(() => order.OrderFee)" />
+        </div>
+        <div class="mb-3">
+
+            <select @bind="order.CustomerId" class="form-control col-md-4">
+                @foreach (var f in customerList)
+                {
+                    <option value="@f.CustomerID">@f.CustomerName</option>
+                }
+            </select>
+
+        </div>
+        <div class="mb-3">
+
+            <select @bind="order.StaffId" class="form-control col-md-4">
+                @foreach (var f in staffList)
+                {
+                    <option value="@f.StaffId">@f.StaffName</option>
+                }
+            </select>
+
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>*@

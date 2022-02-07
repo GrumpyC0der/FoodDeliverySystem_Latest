@@ -1,0 +1,48 @@
+﻿@page "/staff/delete/{staffId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h2>Delete Staff</h2>
+<br />
+<div class="form-group">
+    <h4>Do you want to delete this staff?</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Name</td>
+                <td>@staff.StaffName</td>
+            </tr>
+            <tr>
+                <td>Contact</td>
+                <td>@staff.StaffContact</td>
+            </tr>
+            <tr>
+                <td>Position</td>
+                <td>@staff.StaffPostion</td>
+            </tr>
+            
+        </tbody>
+    </table>
+</div>
+<div class="form-group">
+    <input type="submit" value="Delete" @onclick="(async () => await RemoveStaff(staff.StaffId))" class="btn btn-danger" />
+    <input type="submit" value="Cancel" @onclick="(() => Cancel())" class="btn btn-warning" />
+</div>
+@code {
+    [Parameter]
+    public int staffId { get; set; }
+    Staff staff = new Staff();
+    protected override async Task OnInitializedAsync()
+    {
+        staff = await Http.GetFromJsonAsync<Staff>("/api/Staff/" + Convert.ToInt32(staffId));
+    }
+    protected async Task RemoveStaff(int staffID)
+    {
+        await Http.DeleteAsync("api/Staff/" + staffID);
+        NavigationManager.NavigateTo("/staff");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/fetchstaffdetails");
+    }
+}

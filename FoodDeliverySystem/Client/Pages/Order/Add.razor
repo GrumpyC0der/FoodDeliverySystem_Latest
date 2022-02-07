@@ -1,0 +1,104 @@
+﻿@page "/order/add"
+@page "/order/edit/{orderId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>@Title Order</h1>
+<hr />
+<EditForm Model="@order" OnValidSubmit="SaveOrder">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">Order Time</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="order.OrderTime" />
+        </div>
+        <ValidationMessage For="@(() => order.OrderTime)" />
+    </div>
+    <div class="mb-3" hidden>
+        <label for="Address" class="form-label">Order Fee</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="order.OrderFee"  />
+        </div>
+        <ValidationMessage For="@(() => order.OrderFee)" />
+    </div>
+    <div class="mb-3">
+
+        <select @bind="order.CustomerId" class="form-control col-md-4">
+            <option value="-1">Select Customer </option>
+
+            @foreach (var f in customerList)
+            {
+                <option value="@f.CustomerID">@f.CustomerName</option>
+            }
+        </select>
+
+    </div>
+    <div class="mb-3">
+
+        <select @bind="order.StaffId" class="form-control col-md-4">
+            <option value="-1">Select Deliverer </option>
+
+            @foreach (var f in staffList)
+            {
+                <option value="@f.StaffId">@f.StaffName</option>
+            }
+        </select>
+
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+@code {
+
+    [Parameter]
+    public int orderId { get; set; }
+    protected string Title = "Add";
+    protected Order order = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        if (orderId != 0)
+        {
+            Title = "Edit";
+            order = await Http.GetFromJsonAsync<Order>("api/Order/" + orderId);
+        }
+    }
+    protected async Task SaveOrder()
+    {
+
+        if (order.OrderId != 0)
+        {
+            await Http.PutAsJsonAsync("api/Order", order);
+        }
+        else
+        {
+            order.OrderFee = "0";
+            await Http.PostAsJsonAsync("api/Order", order);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/order");
+    }
+    protected List<Customer> customerList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Getcustomer();
+        await Getstaff();
+
+    }
+    protected async Task Getcustomer()
+    {
+        customerList = await Http.GetFromJsonAsync<List<Customer>>("api/customer");
+    }
+    protected List<Staff> staffList = new();
+
+    protected async Task Getstaff()
+    {
+        staffList = await Http.GetFromJsonAsync<List<Staff>>("api/staff");
+    }
+}
+

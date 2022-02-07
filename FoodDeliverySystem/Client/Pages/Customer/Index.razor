@@ -1,0 +1,105 @@
+﻿@page "/customer"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+<style>
+   </style>
+<h1 class="text-danger border-Top-Bottom " style="">Customer</h1>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <a href='/customer/add' class="btn btn-primary" role="button">
+            <i class="oi oi-plus"></i>
+            Add Customer
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search customer by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="Filtercustomer" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (customerList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped align-middle table-bordered table-sm">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Cell No</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customerList)
+            {
+                <tr>
+                    <td>@customer.CustomerID</td>
+                    <td>@customer.CustomerName</td>
+                    <td>@customer.CustomerAddress</td>
+                    <td>@customer.CustomerContact</td>
+                    <td>
+                        <a href='/customer/edit/@customer.CustomerID' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                            Edit
+                        </a>
+                        <a href='/customer/delete/@customer.CustomerID' class="icofont icofont-trash custom-text-primary" role="button">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+}
+@code {
+    protected List<Customer> customerList = new();
+    protected List<Customer> searchcustomerData = new();
+    protected Customer customer = new();
+    protected string SearchString { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await Getcustomer();
+    }
+    protected async Task Getcustomer()
+    {
+        customerList = await Http.GetFromJsonAsync<List<Customer>>("api/customer");
+        searchcustomerData = customerList;
+    }
+    protected void Filtercustomer()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            customerList = searchcustomerData
+                .Where(x => x.CustomerName.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            customerList = searchcustomerData;
+        }
+    }
+    protected void DeleteConfirm(int customerID)
+    {
+        customer = customerList.FirstOrDefault(x => x.CustomerID == customerID);
+    }
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        customerList = searchcustomerData;
+    }
+}

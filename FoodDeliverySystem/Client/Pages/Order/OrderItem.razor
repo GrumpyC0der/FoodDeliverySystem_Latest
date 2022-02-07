@@ -1,0 +1,84 @@
+﻿@page "/orderitems/{orderId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>@Title Order</h1>
+<hr />
+<EditForm Model="@orderItem" OnValidSubmit="SaveOrder">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="Name" class="form-label">Select Food</label>
+
+        <select @bind="orderItem.FoodID" class="form-control col-md-4">
+            <option value="-1">Select Food </option>
+
+            @foreach (var f in foodList)
+            {
+                <option value="@f.FoodID">@f.Description</option>
+            }
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+        <label for="Name" class="form-label">Order Quantity</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="orderItem.OrderQuantity" />
+        </div>
+        <ValidationMessage For="@(() => orderItem.OrderQuantity)" />
+    </div>
+
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+@code {
+
+    [Parameter]
+    public int orderId { get; set; }
+    protected string Title = "Add";
+    protected Order order = new();
+    protected OrderItems orderItem = new();
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (orderId != 0)
+        {
+            order = await Http.GetFromJsonAsync<Order>("api/Order/" + orderId);
+            orderItem.OrderId = order.OrderId;
+        }
+    }
+    protected async Task SaveOrder()
+    {
+
+            await Http.PostAsJsonAsync("api/orderitems", orderItem);
+
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/order/detail/" + orderId);
+    }
+    protected List<Food> foodList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFood();
+        await Getstaff();
+
+    }
+    protected async Task GetFood()
+    {
+        foodList = await Http.GetFromJsonAsync<List<Food>>("api/food");
+    }
+    protected List<Staff> staffList = new();
+
+    protected async Task Getstaff()
+    {
+        staffList = await Http.GetFromJsonAsync<List<Staff>>("api/staff");
+    }
+}
+

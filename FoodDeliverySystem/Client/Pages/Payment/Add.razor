@@ -1,0 +1,85 @@
+﻿@page "/payment/add"
+@page "/payment/edit/{paymentId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>@Title Payment</h1>
+<hr />
+<EditForm Model="@payment" OnValidSubmit="SavePayment">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">Payment Type</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="payment.PaymentType" />
+        </div>
+        <ValidationMessage For="@(() => payment.PaymentType)" />
+    </div>
+    <div class="mb-3">
+        <label for="Address" class="form-label">Date</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="payment.PaymentDate" />
+        </div>
+        <ValidationMessage For="@(() => payment.PaymentDate)" />
+    </div>
+    <div class="mb-3">
+
+        <select @bind="payment.OrderId" class="form-control col-md-4">
+            <option value="-1">Select Order</option>
+
+            @foreach (var o in orderList)
+            {
+                <option value="@o.OrderId">@o.OrderId-@o.Customer.CustomerName</option>
+            }
+        </select>
+
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+@code {
+
+    [Parameter]
+    public int paymentId { get; set; }
+    public int SelectedFootStoresID { get; set; }
+    protected string Title = "Add";
+    protected Payment payment = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        if (paymentId != 0)
+        {
+            Title = "Edit";
+            payment = await Http.GetFromJsonAsync<Payment>("api/Payment/" + paymentId);
+        }
+    }
+    protected async Task SavePayment()
+    {
+
+
+        if (payment.PaymentId != 0)
+        {
+            await Http.PutAsJsonAsync("api/payment", payment);
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/payment", payment);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/payment");
+    }
+    protected List<Order> orderList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Getpaymentstores();
+    }
+    protected async Task Getpaymentstores()
+    {
+        orderList = await Http.GetFromJsonAsync<List<Order>>("api/order");
+    }
+}
+

@@ -1,0 +1,83 @@
+﻿@page "/food/add"
+@page "/food/edit/{foodId:int}"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>@Title Food</h1>
+<hr />
+<EditForm Model="@food" OnValidSubmit="SaveFood">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">FoodPrice</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="food.FoodPrice" />
+        </div>
+        <ValidationMessage For="@(() => food.FoodPrice)" />
+    </div>
+    <div class="mb-3">
+        <label for="Address" class="form-label">Description</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="food.Description" />
+        </div>
+        <ValidationMessage For="@(() => food.Description)" />
+    </div>
+    <div class="mb-3">
+        
+        <select @bind="food.FoodStoresID" class="form-control col-md-4" >
+                @foreach (var f in foodstoresList)
+                {
+                    <option value="@f.FoodStoresID">@f.StoreAddress</option>
+                }
+        </select>
+
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+@code {
+
+    [Parameter]
+    public int foodId { get; set; }
+    public int SelectedFootStoresID { get; set; }
+    protected string Title = "Add";
+    protected Food food = new();
+    protected override async Task OnParametersSetAsync()
+    {
+        if (foodId != 0)
+        {
+            Title = "Edit";
+            food = await Http.GetFromJsonAsync<Food>("api/Food/" + foodId);
+        }
+    }
+    protected async Task SaveFood()
+    {
+       // food.FoodStoresID = SelectedFootStoresID;
+
+        if (food.FoodID != 0)
+        {
+            await Http.PutAsJsonAsync("api/Food", food);
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/Food", food);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/food");
+    }
+    protected List<FoodStores> foodstoresList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Getfoodstores();
+    }
+    protected async Task Getfoodstores()
+    {
+        foodstoresList = await Http.GetFromJsonAsync<List<FoodStores>>("api/foodstores");
+    }
+}
+

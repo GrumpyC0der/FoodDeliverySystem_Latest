@@ -1,0 +1,105 @@
+﻿@page "/foodstores"
+@using FoodDeliverySystem.Shared.Models
+@inject HttpClient Http
+<h1 class="border-Top-Bottom text-danger">Food Stores </h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <a href='/foodstores/add' class="btn btn-primary" role="button">
+            <i class="oi oi-plus"></i>
+            Add foodstores
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search foodstores by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="Filterfoodstores" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (foodstoresList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+   <table class="table table-striped align-middle table-bordered table-sm">
+       <thead class="table-primary">
+           <tr>
+               <th>ID</th>
+               <th>Name</th>
+               <th>Area</th>
+               <th>Quantity</th>
+               <th>Address</th>
+               <th>Action</th>
+
+           </tr>
+        </thead>
+        <tbody>
+            @foreach (var foodstores in foodstoresList)
+            {
+            <tr>
+                <td>@foodstores.FoodStoresID</td>
+                <td>@foodstores.FoodStoresName</td>
+
+                <td>@foodstores.StoreArea</td>
+                <td>@foodstores.FoodQuantity</td>
+                <td>@foodstores.StoreAddress</td>
+                <td>
+                    <a href='/foodstores/edit/@foodstores.FoodStoresID' class="icofont icofont-pen-alt-1  custom-text-primary " role="button">
+                        Edit
+                    </a>
+                    <a href='/foodstores/delete/@foodstores.FoodStoresID' class="icofont icofont-trash custom-text-primary" role="button">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            }
+        </tbody>
+
+    </table>
+}
+@code {
+    protected List<FoodStores> foodstoresList = new();
+    protected List<FoodStores> searchfoodstoresData = new();
+    protected FoodStores foodstores = new();
+    protected string SearchString { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await Getfoodstores();
+    }
+    protected async Task Getfoodstores()
+    {
+        foodstoresList = await Http.GetFromJsonAsync<List<FoodStores>>("api/foodstores");
+        searchfoodstoresData = foodstoresList;
+    }
+    protected void Filterfoodstores()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            foodstoresList = searchfoodstoresData
+                .Where(x => x.StoreArea.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            foodstoresList = searchfoodstoresData;
+        }
+    }
+    protected void DeleteConfirm(int foodstoresID)
+    {
+        foodstores = foodstoresList.FirstOrDefault(x => x.FoodStoresID == foodstoresID);
+    }
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        foodstoresList = searchfoodstoresData;
+    }
+}
