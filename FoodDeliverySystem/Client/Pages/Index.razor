@@ -23,19 +23,5 @@ Monday	9am–6pm
 Email: beezyfoods@gmail.com
 <br />Number: 65748392
 <br />Find us: Sin Ming 15 Lane
-@if (imageSource is not null)
-{
-    <div>
-        <img src="=@imageSource" />"
-    </div>
-}
 
-@code {
-    private string? imageSource;
-
-    private void ShowImage(int id)
-    {
-        imageSource = $"wwwroot/images/freepik_featured_delivery.jpg";
-    }
-}
 <SurveyPrompt Title="How is Blazor working for you?" />
